@@ -15,6 +15,7 @@ THEME_RED="#f87171"
 THEME_MUTED="#94a3b8"
 THEME_WHITE="#ffffff"
 THEME_BORDER_DIM="#475569"
+THEME_BLACK="#000000"
 
 TOTAL_STEPS=14
 
@@ -24,8 +25,8 @@ init_theme() {
   export GUM_CHOOSE_SELECTED_FOREGROUND="$THEME_GREEN"
 
   export GUM_CONFIRM_PROMPT_FOREGROUND="$THEME_PURPLE"
-  export GUM_CONFIRM_SELECTED_FOREGROUND="$THEME_GREEN"
-  export GUM_CONFIRM_UNSELECTED_FOREGROUND="$THEME_MUTED"
+  export GUM_CONFIRM_SELECTED_FOREGROUND="$THEME_BLACK"
+  export GUM_CONFIRM_UNSELECTED_FOREGROUND="$THEME_PURPLE"
 
   export GUM_INPUT_HEADER_FOREGROUND="$THEME_BLUE"
   export GUM_INPUT_PROMPT_FOREGROUND="$THEME_PURPLE"
@@ -87,10 +88,10 @@ ui_section_header() {
 
 ui_text() {
   gum style \
-    --foreground "$THEME_BLUE" \
+    --foreground "$1" \
     --width 70 \
     --margin "0 3" \
-    "$1"
+    "$2"
 }
 
 ui_box() {
@@ -433,6 +434,10 @@ prompt_password() {
   while true; do
     ui_main_header "$(step_label 7 "Account Configuration")"
 
+    ui_page_header "Configure the administrator account, the runtime gaming account, and the root password"
+    ui_page_header "Administrator account: used for SSH, sudo, and maintenance tasks"
+    ui_page_header "Runtime account: used for auto-login and running the gaming environment"
+
     pw1="$(gum input \
       --header "Enter a password for the ${account_label}:" \
       --padding "0 3" \
@@ -447,6 +452,10 @@ prompt_password() {
     fi
 
     ui_main_header "$(step_label 7 "Account Configuration")"
+
+    ui_page_header "Configure the administrator account, the runtime gaming account, and the root password"
+    ui_page_header "Administrator account: used for SSH, sudo, and maintenance tasks"
+    ui_page_header "Runtime account: used for auto-login and running the gaming environment"
 
     pw2="$(gum input \
       --header "Confirm the password for the ${account_label}:" \
@@ -493,9 +502,9 @@ welcome() {
   ui_page_header "Welcome to the installation wizard for your standalone Retro Gaming Box. This script will guide you through system setup step by step."
 
   ui_section_header "Navigation"
-  ui_text "• Use the arrow keys to move through menus"
-  ui_text "• Press Enter to confirm a selection"
-  ui_text "• Some menus allow multiple selections"
+  ui_text $THEME_BLUE "• Use the arrow keys to move through menus"
+  ui_text $THEME_BLUE "• Press Enter to confirm a selection"
+  ui_text $THEME_BLUE "• Some menus allow multiple selections"
   echo
 
   ui_warn "This installer formats disks and overwrites system settings. Review each choice carefully before continuing!"
@@ -527,11 +536,11 @@ preflight_checks() {
 
   ui_page_header "The installer will now verify network access and show the detected system environment before continuing."
 
-  ui_summary_box 36 thick "Detected system state
+  ui_summary_box 28 normal "Detected system state
 
-Boot mode         : $boot_mode
-CPU type          : $CPU_TYPE
-Bluetooth support : $bluetooth_status"
+Boot mode : $boot_mode
+CPU type  : $CPU_TYPE
+Bluetooth : $bluetooth_status"
 
   ui_section_header "Network Check"
 
@@ -597,7 +606,7 @@ set_keymap() {
       selected_keymap="${selection%% -*}"
     fi
 
-    ui_summary_box 36 thick "Selected keymap: $selected_keymap"
+    ui_summary_box 30 normal "Selected keymap: $selected_keymap"
 
     if ui_confirm "Use this keyboard layout?"; then
       KEYMAP="$selected_keymap"
@@ -634,8 +643,8 @@ set_locale() {
 
     ui_page_header "Press 'x' to select one or more locales to generate for the installed system, then choose which one should be the primary system locale."
 
-    ui_text "Currently enabled locales: $(IFS=', '; echo "${ENABLED_LOCALES[*]}")"
-    ui_text "Current primary locale: $PRIMARY_LOCALE"
+    ui_text $THEME_WHITE "Currently enabled locales: $(IFS=', '; echo "${ENABLED_LOCALES[*]}")"
+    ui_text $THEME_WHITE "Current primary locale: $PRIMARY_LOCALE"
     echo
 
     selection="$(gum choose --no-limit \
@@ -718,11 +727,11 @@ set_locale() {
 
     locale_list="$(IFS=', '; echo "${selected_locales[*]}")"
 
-    ui_summary_box 36 thick "Selected locale configuration
+    ui_summary_box 36 normal "Selected locale configuration
 
 Primary locale: $primary_choice
 
-Enabled locales: 
+Enabled locales:
 $locale_list"
 
     if ui_confirm "Use these locale settings?"; then
@@ -754,7 +763,7 @@ set_timezone() {
 
     ui_page_header "Select the time zone for the installed system, then choose whether the hardware clock should use UTC."
 
-    ui_current_values_box "Current time zone: $TIME_ZONE
+    ui_summary_box 36 normal "Current time zone: $TIME_ZONE
 Hardware clock uses UTC: $UTC_TIME"
     echo
 
@@ -807,7 +816,7 @@ Hardware clock uses UTC: $UTC_TIME"
       utc_choice=false
     fi
 
-    ui_summary_box 36 thick "Selected time settings
+    ui_summary_box 36 normal "Selected time settings
 
 Time zone: $selection
 
@@ -860,7 +869,7 @@ set_hostname() {
       && [[ "${input:0:1}" != "-" ]] \
       && [[ "${input: -1}" != "-" ]]; then
 
-      ui_summary_box 42 thick "Selected hostname: $input"
+      ui_summary_box 42 normal "Selected hostname: $input"
 
       if ui_confirm "Use this hostname?"; then
         HOST_NAME="$input"
@@ -899,6 +908,10 @@ configure_accounts() {
     prompt_password ADMIN_PW "administrator account"
 
     ui_main_header "$(step_label 7 "Account Configuration")"
+
+    ui_page_header "Configure the administrator account, the runtime gaming account, and the root password"
+    ui_page_header "Administrator account: used for SSH, sudo, and maintenance tasks"
+    ui_page_header "Runtime account: used for auto-login and running the gaming environment"
 
     ADMIN_FULL_NAME="$(gum input \
       --header "Optional: Enter a display name for the administrator account" \
@@ -996,12 +1009,11 @@ The disk will be erased later during the installation after final confirmation."
       PARTITION_PREFIX=""
     fi
 
-    ui_summary_box 40 thick "Selected storage configuration
+    ui_summary_box 40 normal "Selected storage configuration
 
 Install disk        : $selected_disk
 Disk size           : $selected_size
-Boot mode           : $boot_mode
-Filesystem          : $ROOT_FS"
+Boot mode           : $boot_mode"
 
     if ui_confirm_danger "Use this disk for installation?"; then
       DISK="$selected_disk"
@@ -1049,15 +1061,24 @@ If enabled, reflector will be run later during installation execution."
     country_choice="Worldwide"
 
     ui_main_header "$(step_label 9 "Mirror Configuration")"
-    ui_box "Retrieving available mirror regions..."
+    
+    mirrorlist_tmp="$(mktemp)"
 
-    if ! mirrorlist_data="$(curl -fsSL https://archlinux.org/mirrorlist/all/https/)"; then
+    if ! run_step "Retrieving available mirror regions..." bash -c '
+      set -Eeuo pipefail
+      curl -fsSL https://archlinux.org/mirrorlist/all/https/ > "$1"
+' _ "$mirrorlist_tmp"; then
+      rm -f "$mirrorlist_tmp"
       ui_danger_box 36 double "Failed to retrieve the Arch Linux mirror list.
 
 Please verify your internet connection and try again."
       sleep 3
       continue
     fi
+
+    mirrorlist_data="$(<"$mirrorlist_tmp")"
+    rm -f "$mirrorlist_tmp"
+
 
     mapfile -t mirror_regions < <(
       printf '%s\n' "$mirrorlist_data" \
@@ -1067,15 +1088,12 @@ Please verify your internet connection and try again."
     )
 
     if [[ ${#mirror_regions[@]} -eq 0 ]]; then
-      ui_danger_box 36 double "No mirror regions could be parsed from the downloaded mirror list."
+      ui_danger_box 36 normal "No mirror regions could be parsed from the downloaded mirror list."
       sleep 3
       continue
     fi
 
     ui_main_header "$(step_label 9 "Mirror Configuration")"
-
-    ui_box "Select the preferred mirror country or region."
-    ui_note "Choose Worldwide, or select a country near you."
     echo
 
     country_choice="$(printf '%s\n' "${mirror_regions[@]}" | \
@@ -1089,7 +1107,7 @@ Please verify your internet connection and try again."
 
     ui_main_header "$(step_label 9 "Mirror Configuration")"
 
-    ui_summary_box 36 thick "Selected mirror configuration
+    ui_summary_box 36 normal "Selected mirror configuration
 
 Optimize mirrors : $optimize_choice
 Preferred region : $country_choice"
@@ -1162,7 +1180,7 @@ Please choose an Intel or AMD graphics option to continue."
 
     ui_main_header "$(step_label 10 "GPU Configuration")"
 
-    ui_summary_box 40 thick "You have selected $gpu_choice. Please confirm this is correct" 
+    ui_summary_box 40 thick "You have selected \"$gpu_choice\". Please confirm this is correct" 
 
     if ui_confirm "Use this package configuration?"; then
       break
@@ -1290,7 +1308,7 @@ configure_emulators() {
 
     ui_main_header "$(step_label 11 "Emulator Configuration")"
 
-    ui_summary_box 64 thick "Selected emulator configuration
+    ui_summary_box 64 normal "Selected emulator configuration
 
 Core packages   : $core_list
 AUR packages    : $aur_list
@@ -1321,14 +1339,14 @@ configure_remote_and_firewall() {
 
     ui_page_header "Choose whether to enable SSH remote access and the UFW firewall on the installed system."
 
-    ui_note_box "SSH allows remote administration of the system.
+    ui_summary_box 36 normal "SSH allows remote administration of the system.
 
-UFW enables a firewall.
+UFW enables a firewall."
 
-Important:
+    ui_danger_box 54 double "IMPORTANT:
+
 If you enable both SSH and UFW, SSH access will not work until you allow it through UFW rules.
 "
-
     echo
 
     if ui_confirm "Enable SSH on the installed system?"; then
@@ -1347,14 +1365,14 @@ If you enable both SSH and UFW, SSH access will not work until you allow it thro
 
     ui_main_header "$(step_label 12 "Remote Access and Firewall")"
 
-    ui_summary_box 56 thick "Selected service configuration
+    ui_summary_box 36 normal "Selected service configuration
 
 Enable SSH : $ssh_choice
 Enable UFW : $ufw_choice"
 
     if [[ "$ssh_choice" == true && "$ufw_choice" == true ]]; then
       echo
-      ui_danger_box 52 double "SSH and UFW are both enabled.
+      ui_danger_box 42 double "SSH and UFW are both enabled.
 
 Remote SSH access will be blocked until you allow SSH through UFW."
     fi
@@ -1729,8 +1747,79 @@ EOF
     fi
   "
 
+  run_step "Setting up autologin" bash -c "
+    set -Eeuo pipefail
+
+    mkdir -p /mnt/etc/systemd/system/getty@tty1.service.d
+
+    cat > /mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin $(printf '%q' "$RUNTIME_USER") --noclear %I \$TERM
+EOF 
+  "
+
+  run_step "Configuring runtime shell startup..." bash -c "
+    set -Eeuo pipefail
+
+    runtime_home=/mnt/home/$(printf '%q' "$RUNTIME_USER")
+    profile_file=\"\$runtime_home/.bash_profile\"
+
+    if [[ ! -f \"\$profile_file\" ]]; then
+      echo \"Expected runtime shell profile not found: \$profile_file\" >&2
+      exit 1
+    fi
+
+    if ! grep -Fq '# retrobox-sway-autostart' \"\$profile_file\"; then
+      cat >> \"\$profile_file\" <<'EOF'
+
+# retrobox-sway-autostart
+if [[ -z "${WAYLAND_DISPLAY:-}" && "$(tty)" == "/dev/tty1" ]]; then
+  exec sway
+fi
+EOF
+  fi
+
+    chown $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$profile_file\"
+  "
+
+  run_step "Creating Sway config..." bash -c "
+    set -Eeuo pipefail
+
+    runtime_home=/mnt/home/$(printf '%q' "$RUNTIME_USER")
+    sway_dir=\"\$runtime_home/.config/sway\"
+    sway_config=\"\$sway_dir/config\"
+
+    mkdir -p \"\$sway_dir\"
+
+    cat > \"\$sway_config\" <<'EOF'
+exec es-de
+EOF
+
+    chown -R $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$sway_dir\"
+  "
+}
+
+finish_installer() {
+  ui_main_header "Installation Complete"
+  ui_success "Installation completed successfully."
   echo
-  ui_success "Base system installation tasks completed."
+
+  if ui_confirm "Reboot now?"; then
+    ui_note "Unmounting installation target and rebooting..."
+    sync
+    umount -R /mnt 2>/dev/null || true
+    reboot
+  fi
+
+  if ui_confirm "Shut down now?"; then
+    ui_note "Unmounting installation target and shutting down..."
+    sync
+    umount -R /mnt 2>/dev/null || true
+    poweroff
+  fi
+
+  ui_note "Installation complete. You can reboot or shut down manually when ready."
 }
 
 
@@ -1751,3 +1840,4 @@ configure_emulators
 configure_remote_and_firewall
 format_disk
 install_system
+finish_installer
