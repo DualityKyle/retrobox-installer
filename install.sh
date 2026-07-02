@@ -1738,7 +1738,7 @@ EOF
     fi
 
     if [[ $(printf '%q' "$ENABLE_SSH") == true ]]; then
-      arch-chroot /mnt systemctl enable ssh.service
+      arch-chroot /mnt systemctl enable sshd.service
     fi
 
     if [[ $(printf '%q' "$ENABLE_UFW") == true ]]; then
@@ -1752,7 +1752,7 @@ EOF
 
     mkdir -p /mnt/etc/systemd/system/getty@tty1.service.d
 
-    cat > /mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
+    cat > /mnt/etc/systemd/system/getty@tty1.service.d/override.conf <<EOF
 [Service]
 ExecStart=
 ExecStart=-/usr/bin/agetty --autologin $(printf '%q' "$RUNTIME_USER") --noclear %I \$TERM
