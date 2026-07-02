@@ -1759,29 +1759,20 @@ ExecStart=-/usr/bin/agetty --autologin $(printf '%q' "$RUNTIME_USER") --noclear 
 EOF 
   "
 
-  run_step "Configuring runtime shell startup..." bash -c "
-    set -Eeuo pipefail
+run_step "Configuring runtime shell startup..." bash -c "
+  set -Eeuo pipefail
 
-    runtime_home=/mnt/home/$(printf '%q' "$RUNTIME_USER")
-    profile_file=\"\$runtime_home/.bash_profile\"
+  runtime_home=/mnt/home/$(printf '%q' "$RUNTIME_USER")
+  profile_file=\"\$runtime_home/.bash_profile\"
 
-    if [[ ! -f \"\$profile_file\" ]]; then
-      echo \"Expected runtime shell profile not found: \$profile_file\" >&2
-      exit 1
-    fi
+  touch \"\$profile_file\"
 
-    if ! grep -Fq '# retrobox-sway-autostart' \"\$profile_file\"; then
-      cat >> \"\$profile_file\" <<'EOF'
-
-# retrobox-sway-autostart
-if [[ -z "${WAYLAND_DISPLAY:-}" && "$(tty)" == "/dev/tty1" ]]; then
-  exec sway
-fi
-EOF
+  if ! grep -Fq '# retrobox-sway-autostart' \"\$profile_file\"; then
+    printf '\n# retrobox-sway-autostart\nif [ -z \"\$WAYLAND_DISPLAY\" ] && [ \"\$(tty)\" = \"/dev/tty1\" ]; then\n    exec sway\nfi\n' >> \"\$profile_file\"
   fi
 
-    chown $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$profile_file\"
-  "
+  chown $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$profile_file\"
+"
 
   run_step "Creating Sway config..." bash -c "
     set -Eeuo pipefail
