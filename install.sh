@@ -1771,7 +1771,7 @@ run_step "Configuring runtime shell startup..." bash -c "
     printf '\n# retrobox-sway-autostart\nif [ -z \"\$WAYLAND_DISPLAY\" ] && [ \"\$(tty)\" = \"/dev/tty1\" ]; then\n    exec sway\nfi\n' >> \"\$profile_file\"
   fi
 
-  chown $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$profile_file\"
+  arch-chroot /mnt chown $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$profile_file\"
 "
 
   run_step "Creating Sway config..." bash -c "
@@ -1787,7 +1787,7 @@ run_step "Configuring runtime shell startup..." bash -c "
 exec es-de
 EOF
 
-    chown -R $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$sway_dir\"
+    arch-chroot /mnt chown -R $(printf '%q' "$RUNTIME_USER"):$(printf '%q' "$RUNTIME_USER") \"\$sway_dir\"
   "
 }
 
