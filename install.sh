@@ -1783,6 +1783,9 @@ run_step "Configuring runtime shell startup..." bash -c "
 
     cat > \"\$sway_config\" <<'EOF'
 seat * hide_cursor 100
+for_window [class="es-de"] fullscreen enable
+for_window [class="es-de"] border none
+
 exec es-de
 EOF
 
