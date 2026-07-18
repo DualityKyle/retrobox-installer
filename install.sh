@@ -1782,6 +1782,7 @@ run_step "Configuring runtime shell startup..." bash -c "
     mkdir -p \"\$sway_dir\"
 
     cat > \"\$sway_config\" <<'EOF'
+seat * hide_cursor 100
 exec es-de
 EOF
 
