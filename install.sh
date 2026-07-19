@@ -1161,6 +1161,7 @@ configure_gpu_type() {
           "mesa"
           "vulkan-intel"
           "intel-media-driver"
+          "intel-gpu-tools"
         )
         ;;
       *AMD*)
