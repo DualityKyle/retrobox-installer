@@ -299,6 +299,7 @@ BASE_PACKAGES=(
   'vim'
   'e2fsprogs'
   'fastfetch'
+  'htop'
   'openssh'
   'wget'
   'man-db'
@@ -328,6 +329,7 @@ BASE_PACKAGES=(
   'libretro-core-info'
   'libretro-shaders-slang'
   'libretro-overlays'
+  'gamemode'
 )
 
 ENABLE_SSH=false
@@ -934,7 +936,7 @@ Admin display name: ${ADMIN_FULL_NAME:-<not set>}
 Admin groups: wheel, audio, input, video
 
 Runtime user: $RUNTIME_USER
-Runtime groups: games, audio, input, storage, video
+Runtime groups: games, audio, input, storage, video, gamemode
 
 Root account: Password set"
 
@@ -1286,11 +1288,13 @@ configure_emulators() {
           SYSTEM_PACKAGES+=(
             'lib32-mesa'
             'lib32-vulkan-intel'
+            'lib32-gamemode'
           )
           ;;
         *AMD*)
           SYSTEM_PACKAGES+=(
             'lib32-mesa'
+            'lib32-gamemode'
           )
           ;;
       esac
@@ -1624,7 +1628,7 @@ EOF
   run_step "Setting up runtime account..." bash -c "
     set -Eeuo pipefail
 
-    arch-chroot /mnt useradd -m -G games,audio,input,storage,video $(printf '%q' "$RUNTIME_USER")
+    arch-chroot /mnt useradd -m -G games,audio,input,storage,video,gamemode $(printf '%q' "$RUNTIME_USER")
     printf '%s\n' $(printf '%q' "$RUNTIME_USER:$RUNTIME_PW") | arch-chroot /mnt chpasswd
   "
 
